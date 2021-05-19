@@ -10,7 +10,7 @@ import getch as g
 # PyTesseract lib : extracting text info from pics
 
 ##       ##
-##LEGENDA##
+##LEGENDA dsa dsa##
 ##       ##
 
 # | # <comment> ( <method_output> : <return type> )
