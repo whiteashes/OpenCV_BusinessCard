@@ -16,6 +16,7 @@ import getch as g
 # | # <comment> ( <method_output> : <return type> )
 
 def extraction(frame_name):
+    file = open("detected.txt","a")
 
     #numpy array before converting  
     img = cv.imread(str(frame_name)+".jpg")
@@ -25,7 +26,9 @@ def extraction(frame_name):
     gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 
     #noise removal
-    blurred = cv.medianBlur(gray,5)
+    #blurred = cv.medianBlur(gray,5)
+    #blurred = cv.GaussianBlur(gray,(7,5),0)
+    blurred = cv.fastNlMeansDenoising(gray,50,7,21)
 
     #threshold ( tresh: output img )
     #first arg MUST BE a grayscaled img
@@ -36,19 +39,24 @@ def extraction(frame_name):
     #sixth arg: constant subtracted from mean   
     # 0 black 255 white (max value)
     
-    thresh = cv.adaptiveThreshold(blurred,150,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,17,1.8)
+    thresh = cv.adaptiveThreshold(blurred,255,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,17,1.8)
 
     #histogram equalization -> improve contrast
     histed = cv.equalizeHist(thresh)
 
-    img = cv.imwrite(str(frame_name)+"__thresh"+".jpg",histed) #save thresholded img
+    cv.imwrite(str(frame_name)+"__thresh"+str(time.time())+".jpg",histed) #save thresholded img
 
+    print("Img saved %s\n" %frame_name)
 
-    #TESTING
-    #cv.imshow('img',thresh1)
-    #cv.waitKey(1)
+    verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, (1, np.array(img).shape[1]//150))
+    erodedImg = cv.erode(histed, verticalKernel, iterations=5)
+    verticalLines = cv.dilate(erodedImg, verticalKernel, iterations=5)
 
-    return
+    #procedure#
+    ###########
+
+    file.close()
+    exit()
 
 
 # service functions #
@@ -76,6 +84,10 @@ def cleaning():
 a=0
 list = [0]*10
 
+#destroy if exists
+if os.path.exists("detected.txt"):
+    os.remove("detected.txt")
+
 # capturing video from camera module
 cap = cv.VideoCapture(0)
 
@@ -91,7 +103,7 @@ if not cap.isOpened():
 
 while True: 
 
-    print("1. X -> take a pic \n2. Z -> exit\n")
+    print("X -> take a pic \nY -> from file \nZ -> exit\n")
     b = g.getch()
     print("\n")
 
@@ -115,7 +127,9 @@ while True:
         print("Img saved %s\n" %frame_name)
 
         #extraction part
-        extraction(frame_name)
+        
+        text=extraction(frame_name)
+        file.write(text+"\n")
 
         if list[a]!=0:
             os.remove(str(list[a])+".jpg")
@@ -131,6 +145,10 @@ while True:
         #cleaning folder
         cleaning()
         exit()
+
+    elif b=='Y' or b=='y':
+        file="../img"
+        extraction(file)
 
     else:
         print("Please insert a correct input.\n")
