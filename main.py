@@ -2,7 +2,9 @@
 import cv2 as cv
 import numpy as np
 import pytesseract as pytes
+from pytesseract import Output
 import time,os,re
+from re import search
 from os import listdir
 import getch as g
 
@@ -10,52 +12,94 @@ import getch as g
 # PyTesseract lib : extracting text info from pics
 
 ##       ##
-##LEGENDA dsa dsa##
+##LEGENDA##
 ##       ##
 
 # | # <comment> ( <method_output> : <return type> )
 
-def extraction(frame_name):
-    file = open("detected.txt","a")
+test=open("test.txt","a")
 
+def regexFind(file):
+    str=""
+    mailPattern = '\S+@\S+'
+    namePattern = "([A-Z][a-z]*)([\\s\\\'-][A-Z][a-z]*)*"
+
+    file.seek(0)
+    firstLine = file.readline()
+
+    #  ( m(n) : array[] ) -> m(n)[0] full match
+    m=re.search(mailPattern,firstLine)
+    n=re.findall(namePattern,firstLine)
+
+    str = m[0]
+
+    #new lists
+    firstTElem = []
+    secondTElem = []
+
+    for a in n:
+        firstTElem.append(a[0])
+        secondTElem.append(a[1])
+
+    for i in range(len(secondTElem)):
+        x = secondTElem[i]
+        if(str.find(x)!=-1 and x!=''):
+            print(firstTElem[i])
+            print(secondTElem[i])
+            break
+
+    
+    #for i in range(length):
+    #    for x,y in n[i]:
+    #        print(x,y)
+
+    return m[0],str
+
+
+def extraction(frameName):
     #numpy array before converting  
-    img = cv.imread(str(frame_name)+".jpg")
+    img = cv.imread(frameName+".jpg")
     img = np.array(img,dtype=np.uint8)
 
     #gray scale conversion ( gray : output img )
     gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 
     #noise removal
-    #blurred = cv.medianBlur(gray,5)
-    #blurred = cv.GaussianBlur(gray,(7,5),0)
     blurred = cv.fastNlMeansDenoising(gray,50,7,21)
 
     #threshold ( tresh: output img )
-    #first arg MUST BE a grayscaled img
-    #second arg : max pixel value
-    #third arg : adaptive threshold type (mean or gaussian)
-    #fourth arg: threshold type (ONLY binary for adaptive)
-    #fifth arg: pixel block size 
-    #sixth arg: constant subtracted from mean   
-    # 0 black 255 white (max value)
-    
+    #first arg MUST BE a grayscaled img ; second arg : max pixel value
+    #third arg : adaptive threshold type (mean or gaussian) ; fourth arg: threshold type (ONLY binary for adaptive)
+    #fifth arg: pixel block size ; 0 black 255 white (max value)
     thresh = cv.adaptiveThreshold(blurred,255,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,17,1.8)
 
     #histogram equalization -> improve contrast
     histed = cv.equalizeHist(thresh)
 
-    cv.imwrite(str(frame_name)+"__thresh"+str(time.time())+".jpg",histed) #save thresholded img
+    frameNameFinal = frameName+"__thresh"+str(time.time())+".jpg"
+    cv.imwrite(frameNameFinal,histed) #save thresholded img
+    print("Img saved: %s" %frameNameFinal)
 
-    print("Img saved %s\n" %frame_name)
+    img = cv.imread(frameNameFinal)
+    #dictionary
+    d = pytes.image_to_data(img, output_type=Output.DICT)
+    print(d.keys())
 
-    verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, (1, np.array(img).shape[1]//150))
-    erodedImg = cv.erode(histed, verticalKernel, iterations=5)
-    verticalLines = cv.dilate(erodedImg, verticalKernel, iterations=5)
+    file=open("detected.txt","r+")
+    file.truncate(0)
 
-    #procedure#
-    ###########
+    nBoxes = len(d['text'])
+    for i in range(nBoxes):
+        print(d['text'][i])
+        file.write(d['text'][i]+" ") # tutto su una riga
+        test.write(d['text'][i]+" ")
 
+    test.write("\n- - - -\n")
+    s1,s2=regexFind(file)
+    print(s1+"\n")
+    print(s2)
     file.close()
+    test.close()
     exit()
 
 
@@ -84,22 +128,18 @@ def cleaning():
 a=0
 list = [0]*10
 
-#destroy if exists
-if os.path.exists("detected.txt"):
-    os.remove("detected.txt")
-
 # capturing video from camera module
-cap = cv.VideoCapture(0)
+#cap = cv.VideoCapture(0)
 
 #setting max resolution for camera module (5MP)
 imgwidth = 2592
 imgheight = 1944
-cap.set(3,imgwidth)
-cap.set(4,imgheight)
+#cap.set(3,imgwidth)
+#cap.set(4,imgheight)
 
-if not cap.isOpened():
-    print("Camera error...")
-    exit()
+#if not cap.isOpened():
+#    print("Camera error...")
+#    exit()
 
 while True: 
 
@@ -114,22 +154,22 @@ while True:
             a=0
         
         #capturing frame by frame
-        ret, frame = cap.read()
+        #ret, frame = cap.read()
         frame_name = time.time()
 
         #ret==true -> frame read correctly  
-        if not ret:
-            print("Can't receive the frame..\n")
-            break
+       # if not ret:
+       #    print("Can't receive the frame..\n")
+       #     break
 
         #saving frame
-        img = cv.imwrite(str(frame_name)+".jpg",frame)
+        #img = cv.imwrite(str(frame_name)+".jpg",frame)
         print("Img saved %s\n" %frame_name)
 
         #extraction part
         
         text=extraction(frame_name)
-        file.write(text+"\n")
+        #file.write(text+"\n")
 
         if list[a]!=0:
             os.remove(str(list[a])+".jpg")
@@ -141,14 +181,14 @@ while True:
 
     elif b=='Z' or b=='z':
         #releasing capture
-        cap.release()
+        #cap.release()
         #cleaning folder
         cleaning()
         exit()
 
     elif b=='Y' or b=='y':
-        file="../img"
-        extraction(file)
+        f="img"
+        extraction(f+"3")
 
     else:
         print("Please insert a correct input.\n")
