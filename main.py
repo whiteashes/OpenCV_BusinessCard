@@ -7,6 +7,7 @@ import time,os,re
 from re import search
 from os import listdir
 import getch as g
+import json
 
 # OpenCV lib : shooting pic, grayscaling and manipulating them
 # PyTesseract lib : extracting text info from pics
@@ -17,43 +18,102 @@ import getch as g
 
 # | # <comment> ( <method_output> : <return type> )
 
+#setting max resolution for camera module (5MP)
+IMGWIDTH = 2592
+IMGHEIGTH = 1944
+#counter
+a=0
+flag=False
+list = [0]*10
 test=open("test.txt","a")
 
+def capturing(cap):
+    #capturing frame by frame
+    ret, frame = cap.read()
+    frameName = time.time()
+
+    #ret==true -> frame read correctly  
+    if not ret:
+        print("Can't receive the frame..\n")
+        exit()
+
+    #saving frame
+    img = cv.imwrite(str(frameName)+".jpg",frame)
+    print("Img saved %s\n" %frameName)
+
+    return frameName
+
+#jsoning dicts
+def jsoned(card):
+    parsed=card['name']+card['surname']+".json"
+    with open(parsed,'w') as fp:
+        json.dump(card,fp)
+    
+    return parsed
+
+
 def regexFind(file):
-    str=""
     mailPattern = '\S+@\S+'
     namePattern = "([A-Z][a-z]*)([\\s\\\'-][A-Z][a-z]*)*"
+
+    card =	{
+        "name": "",
+        "surname": "",
+        "company": "",
+        "mail": ""
+    }
 
     file.seek(0)
     firstLine = file.readline()
 
     #  ( m(n) : array[] ) -> m(n)[0] full match
-    m=re.search(mailPattern,firstLine)
-    n=re.findall(namePattern,firstLine)
+    try:
+        m=re.search(mailPattern,firstLine)
+    except TypeError:
+        print("Mail not found.")
+        exit()
 
-    str = m[0]
+    card['mail'] = m[0]
+
+    n=re.findall(namePattern,firstLine)
 
     #new lists
     firstTElem = []
     secondTElem = []
 
+    #for loop over name matches
     for a in n:
-        firstTElem.append(a[0])
-        secondTElem.append(a[1])
+        if not a[0]=='' or a[0]==' ':
+            firstTElem.append(a[0])
+        else:
+            firstTElem.append('X')
+        if not a[1]=='' or a[1]==' ':
+            secondTElem.append(a[1])
+        else:
+            secondTElem.append('X')
 
-    for i in range(len(secondTElem)):
-        x = secondTElem[i]
-        if(str.find(x)!=-1 and x!=''):
-            print(firstTElem[i])
-            print(secondTElem[i])
-            break
+    #compare matches w\ mail
+    i=0
+    ignoreNext=''
+    for x in secondTElem:
+        s=x.replace(" ","")
+        if re.search(s,m[0],re.IGNORECASE) and len(s)>1:
+            card['surname']=s
+            card['name']=firstTElem[i]
+            ignoreNext=firstTElem[i]
+            
+        i=i+1
 
-    
-    #for i in range(length):
-    #    for x,y in n[i]:
-    #        print(x,y)
+    #finding company name
+    for y in firstTElem:
+        s=y.replace(" ","")
+        if re.search(s,m[0],re.IGNORECASE) and s!=ignoreNext and len(s)>1:
+            card['company']=s
 
-    return m[0],str
+    print(firstTElem)
+    print(secondTElem)
+
+    return card
 
 
 def extraction(frameName):
@@ -82,7 +142,7 @@ def extraction(frameName):
 
     img = cv.imread(frameNameFinal)
     #dictionary
-    d = pytes.image_to_data(img, output_type=Output.DICT)
+    d = pytes.image_to_data(img, output_type=Output.DICT,config='--psm 11')
     print(d.keys())
 
     file=open("detected.txt","r+")
@@ -90,17 +150,20 @@ def extraction(frameName):
 
     nBoxes = len(d['text'])
     for i in range(nBoxes):
-        print(d['text'][i])
         file.write(d['text'][i]+" ") # tutto su una riga
         test.write(d['text'][i]+" ")
 
     test.write("\n- - - -\n")
-    s1,s2=regexFind(file)
-    print(s1+"\n")
-    print(s2)
+
+    card=regexFind(file)
+    parsed=jsoned(card)
+
+    print("jsoned %s" %parsed)
+    print(card)
+
     file.close()
     test.close()
-    exit()
+    return
 
 
 # service functions #
@@ -122,25 +185,17 @@ def cleaning():
 
     return
 
-# # #
+def cleaningImg(a,frameName):
+    if list[a]!=0:
+        os.remove(str(list[a])+".jpg")
+        list[a] = frameName    
+        a=a+1
+    return a
 
-#counter
-a=0
-list = [0]*10
+#  #  #
 
-# capturing video from camera module
-#cap = cv.VideoCapture(0)
 
-#setting max resolution for camera module (5MP)
-imgwidth = 2592
-imgheight = 1944
-#cap.set(3,imgwidth)
-#cap.set(4,imgheight)
-
-#if not cap.isOpened():
-#    print("Camera error...")
-#    exit()
-
+# MAIN #
 while True: 
 
     print("X -> take a pic \nY -> from file \nZ -> exit\n")
@@ -148,47 +203,38 @@ while True:
     print("\n")
 
     if b=='X' or b=='x':
-
+        flag=True
         #clean if full
         if a==10:
             a=0
-        
+
+        #capturing video from camera module
+        cap = cv.VideoCapture(0)
+        cap.set(3,IMGWIDTH)
+        cap.set(4,IMGHEIGTH)
+
+        if not cap.isOpened():
+            print("Camera error...")
+            exit()
+
         #capturing frame by frame
-        #ret, frame = cap.read()
-        frame_name = time.time()
-
-        #ret==true -> frame read correctly  
-       # if not ret:
-       #    print("Can't receive the frame..\n")
-       #     break
-
-        #saving frame
-        #img = cv.imwrite(str(frame_name)+".jpg",frame)
-        print("Img saved %s\n" %frame_name)
-
+        frameName=capturing(cap)
         #extraction part
-        
-        text=extraction(frame_name)
-        #file.write(text+"\n")
-
-        if list[a]!=0:
-            os.remove(str(list[a])+".jpg")
- 
-        list[a] = frame_name    
-        a=a+1
-        if a==10:
-            a=0
+        extraction(frameName)
+        #removes useless pics
+        a = cleaningImg(a,frameName)
 
     elif b=='Z' or b=='z':
         #releasing capture
-        #cap.release()
+        if(flag):
+            cap.release()
         #cleaning folder
         cleaning()
         exit()
 
     elif b=='Y' or b=='y':
         f="img"
-        extraction(f+"3")
+        extraction(f+"5")
 
     else:
         print("Please insert a correct input.\n")
