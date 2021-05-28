@@ -17,8 +17,11 @@ pip3 install opencv-python pytesseract flask pygetch
 
 <h2>Behaviour</h2>
 
-A webapp made with Flask python framework. It converts a .jpg business card into a JSON parsed file with infos like: name, surname, company and mail.
+A webapp made with Flask python framework. It converts a previously uploaded .jpg business card into a JSON parsed file with infos like: name, surname, company and mail.
 OpenCV is used for grayscaling and optimize images before PyTesseract processing. The latter lib is used to extract texts with OCR (optical character recognition) technique.
+_**bcModules.py**_ also contains functions for shooting pic with a camera module instead of static file uploading, but it's not implemented in webapp yet.
+
+
 
 <h2>Running</h2>
 
