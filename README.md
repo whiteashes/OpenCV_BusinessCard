@@ -8,9 +8,10 @@
 - Getch
 
 Dependencies for Python could be installed via **pip** after installing Python with your package manager.
-A virtual environment is also necessary for Flask, so pip dependencies commands must be executed inside a venv.
-In **_utils/_** folder you could find a Bash script for your Unix like OS.
+A virtual environment is also necessary for Flask, so pip dependencies commands must be executed inside a venv. Paste this line
+after venv activation (read below):
 
+> pip3 install opencv-python pytesseract flask pygetch
 
 <h2>Behaviour</h2>
 
