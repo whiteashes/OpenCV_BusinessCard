@@ -120,6 +120,9 @@ def extraction(frameName):
     #WINDOWS ONLY,keep comment if you use UNIX like OS#
     # pytes.pytesseract.tesseract_cmd = 'C:\path\to\tesseract.exe'
     
+    if not os.path.exists('pics'):
+    os.makedirs('pics')
+    
     print(frameName)
 
     #numpy array before converting  
