@@ -15,7 +15,7 @@ In **_utils/_** folder you could find a Bash script for your Unix like OS.
 <h2>Behaviour</h2>
 
 A webapp made with Flask python framework. It converts a .jpg business card into a JSON parsed file with infos like: name, surname, company and mail.
-OpenCV is used for grayscaling and optimize images before PyTesseract processing. The latter lib is used to extract texts from images with OCR technique.
+OpenCV is used for grayscaling and optimize images before PyTesseract processing. The latter lib is used to extract texts with OCR technique.
 
 <h2>Running</h2>
 
