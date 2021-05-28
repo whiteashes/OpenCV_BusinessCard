@@ -11,7 +11,9 @@ Dependencies for Python could be installed via **pip** after installing Python w
 A virtual environment is also necessary for Flask, so pip dependencies commands must be executed inside a venv. Paste this line
 after venv activation (read below):
 
-> pip3 install opencv-python pytesseract flask pygetch
+```sh
+pip3 install opencv-python pytesseract flask pygetch
+```
 
 <h2>Behaviour</h2>
 
@@ -25,31 +27,29 @@ To run the Flask webapp you have to activate the virtual environment:
 
 <h3>Linux</h3>
 
-> python3 -m venv venv
-
-> . /venv/bin/activate 
-
-> export FLASK_APP=app.py
-
-> flask run
+```sh
+python3 -m venv venv
+. /venv/bin/activate 
+export FLASK_APP=app.py
+flask run
+```
 
 <h3>OSX</h3>
 
-> python3 -m venv venv
-
-> source venv/bin/activate
-
-> export FLASK_APP=app.py
-
+```sh
+python3 -m venv venv
+source venv/bin/activate
+export FLASK_APP=app.py
+```
+  
 <h3>Windows</h3>
 
-> py -3 -m venv venv
-
-> dir <project_name>
-
-> venv\Scripts\activate
-
-> setx FLASK_APP "app.py"
+```batch
+py -3 -m venv venv
+dir <project_name>
+venv\Scripts\activate
+setx FLASK_APP "app.py"
+```
 
 Then for all OS:
 > flask run
