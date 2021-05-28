@@ -8,9 +8,6 @@ from os import listdir
 import getch as g
 import json
 
-#WINDOWS ONLY,keep comment if you use UNIX like OS#
-# pytes.pytesseract.tesseract_cmd = 'C:\path\to\tesseract.exe'
-
 # OpenCV lib : shooting pic, grayscaling and manipulating them
 # PyTesseract lib : extracting text info from pics
 
@@ -120,6 +117,9 @@ def regexFind(file):
 
 
 def extraction(frameName):
+    #WINDOWS ONLY,keep comment if you use UNIX like OS#
+    # pytes.pytesseract.tesseract_cmd = 'C:\path\to\tesseract.exe'
+    
     print(frameName)
 
     #numpy array before converting  
