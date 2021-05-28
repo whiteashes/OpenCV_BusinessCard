@@ -51,8 +51,11 @@ venv\Scripts\activate
 setx FLASK_APP "app.py"
 ```
 
-Then for all OS:
-> flask run
+Then for all OS: 
+
+```
+flask run
+```
 
 From now webapp will be available @ http://127.0.0.1:5000. Enjoy
 
