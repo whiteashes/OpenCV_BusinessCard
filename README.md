@@ -31,7 +31,7 @@ To run the Flask webapp you have to activate the virtual environment:
 <h3>Linux</h3>
 
 ```sh
-python3 -m venv venv
+python3.9 -m venv venv
 . /venv/bin/activate 
 export FLASK_APP=app.py
 ```
@@ -39,7 +39,7 @@ export FLASK_APP=app.py
 <h3>OSX</h3>
 
 ```sh
-python3 -m venv venv
+python3.9 -m venv venv
 source venv/bin/activate
 export FLASK_APP=app.py
 ```
