@@ -4,15 +4,14 @@
 - Python 3.9.X
 - OpenCV
 - PyTesseract
-- Flask
-- Getch
+- Flas
 
 Dependencies for Python could be installed via **pip** after installing Python with your package manager.
 A virtual environment is also necessary for Flask, so pip dependencies commands must be executed inside a venv. Paste this line
 after venv activation (read below):
 
 ```sh
-pip3 install opencv-python pytesseract flask pygetch
+pip3 install opencv-python pytesseract flask
 ```
 
 <h2>Behaviour</h2>
