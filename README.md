@@ -1,10 +1,10 @@
 
 <h2>Requirements</h2>
 
-- Python 3.9.X
+- Python 3.7
 - OpenCV
 - PyTesseract
-- Flas
+- Flask
 
 Dependencies for Python could be installed via **pip** after installing Python with your package manager.
 A virtual environment is also necessary for Flask, so pip dependencies commands must be executed inside a venv. Paste this line
