@@ -123,14 +123,15 @@ def regexFind(file):
         if re.search("P.IVA",arr[i]) or re.search("P IVA",arr[i]) or re.search("PIVA",arr[i]):
             card['piva'] = arr[i+1]
         
-        if re.search("+39",arr[i]):
+        #searching for +39
+        if arr[i]=="+39":
             if arr[i+1]==" " or len(arr[i+1])<6:
                 card['phone'] = "+39"+arr[i+2]
             else:
                 card['phone'] = "+39"+arr[i+1]
 
         if re.search("www",arr[i],re.IGNORECASE) or re.search("https",arr[i],re.IGNORECASE) or re.search("http",arr[i],re.IGNORECASE):
-            card['website'] = arr[i]
+            card['website'] = arr[i].lower()
 
         for x in range(len(titles)):
             if re.search(titles[x],arr[i]):
