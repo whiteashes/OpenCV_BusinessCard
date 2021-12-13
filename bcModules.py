@@ -34,19 +34,16 @@ def cvProcessing(frameName):
     gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 
     #noise removal
-    
-    #blurred = cv.fastNlMeansDenoising(gray,50,7,21)
+    blurred = cv.fastNlMeansDenoising(gray,50,7,21)
 
     #threshold ( tresh: output img )
     #first arg MUST BE a grayscaled img ; second arg : max pixel value
     #third arg : adaptive threshold type (mean or gaussian) ; fourth arg: threshold type (ONLY binary for adaptive)
     #fifth arg: pixel block size ; 0 black 255 white (max value)
-    #thresh = cv.adaptiveThreshold(blurred,255,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,17,1.8)
+    thresh = cv.adaptiveThreshold(blurred,255,cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY,17,1.8)
 
     #histogram equalization -> improve contrast
-    #histed = cv.equalizeHist(thresh)
-
-    #
+    histed = cv.equalizeHist(thresh)
 
     frameNameFinal = frameName+"__thresh"+str(time.time())+".jpg"
     cv.imwrite(frameNameFinal,gray) #save thresholded img
@@ -59,10 +56,6 @@ def cvProcessing(frameName):
 def callPyTes(img):
     return pytes.image_to_data(img, output_type=Output.DICT,config='--psm 11 -c tessedit_do_invert=0',lang='ita',)
 
-
-#def callEasyOCR(img):
-    reader = easyocr.Reader(['en'])
-    return reader.readtext(img,detail=False,paragraph=True)
 
 def openAndWrite(d):
     file=open("detected.txt","r+")
